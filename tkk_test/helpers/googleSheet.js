@@ -1,11 +1,9 @@
 // helpers/googleSheet.js
-
-// 1. ใส่ SHEET_ID ที่ดึงมาจาก URL
-const SHEET_ID = '1zGYNjECNXzrjpcBjfl41-qk8HGZ6dgvUGt08sA126nE';
-
+const { DATA_GLOBAL } = require('../helpers/dataGlobal');
 async function getTestData(sheet_name) {
+  const sheetID = DATA_GLOBAL.SHEET_ID;
   // ใช้ OpenSheet API แปลง Google Sheet เป็น JSON
-  const url = `https://opensheet.elk.sh/${SHEET_ID}/${sheet_name}`;
+  const url = `https://opensheet.elk.sh/${sheetID}/${sheet_name}`;
   
   try {
     const response = await fetch(url);

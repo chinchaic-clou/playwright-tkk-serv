@@ -1,13 +1,16 @@
 import { test, expect } from '@playwright/test';
+const { LoginPage } = require('../page/login.page');
 const { getTestData } = require('../helpers/googleSheet');
+const { DATA_GLOBAL } = require('../helpers/dataGlobal');
+const { updateUserRow } = require('../helpers/writeGoogleSheet');
 
 test('test', async ({ page }) => {
-  const rows = await getTestData('Sheet1');
-  console.log("Chin Eiei >> ",rows[0].link);
-  await page.goto(rows[0].link);
-  await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).click();
-  await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).fill('admin');
-  await page.getByRole('textbox', { name: 'รหัสผ่าน' }).click();
-  await page.getByRole('textbox', { name: 'รหัสผ่าน' }).fill('admin');
-  await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).click();
+  const sheetID = DATA_GLOBAL.SHEET_ID;
+  const sheetNameLogin = DATA_GLOBAL.SHEET_NAME_LOGIN;
+  const sheetNameAddUser = DATA_GLOBAL.SHEET_NAME_ADD_USER;
+  const rowsSheetLogin = await getTestData(sheetNameLogin);
+  const writeSheetUser = await updateUserRow(sheetID,sheetNameAddUser,'Test001',{Password: '4321eiei'});
+  const loginPage = new LoginPage(page);
+  await loginPage.goto(rowsSheetLogin[0].Link);
+  await loginPage.login(rowsSheetLogin[0].User,rowsSheetLogin[0].Password);
 });
