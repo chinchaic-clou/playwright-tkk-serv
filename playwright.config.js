@@ -32,13 +32,21 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+// 1. ปิดระบบ Viewport ของ Playwright ให้ขยายตามความละเอียดจอจริง
+    viewport: null,
+    deviceScaleFactor: undefined, // 👈 เพิ่มบรรทัดนี้เพื่อล้างค่า Device เดิม
+
+    // 2. ส่ง Argument สั่งให้ Chrome / Chromium เปิดแบบ Maximized
+    launchOptions: {
+      args: ['--start-maximized'],
+    },
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {},
     }
 
     /* Test against mobile viewports. */

@@ -3,6 +3,7 @@ const { expect } = require('@playwright/test'); // 👈 นำเข้า expec
 const { getTestData } = require('../helpers/googleSheet');
 const { DATA_GLOBAL } = require('../helpers/dataGlobal');
 const { getDateTimeString } = require('../helpers/getDateTimeString');
+const { takeScreenshotFull, takeScreenshotCommon } = require('../helpers/takeScreenshot');
 class LoginPage {
   /**
    * @param {import('@playwright/test').Page} page
@@ -22,7 +23,7 @@ class LoginPage {
     await this.page.goto(link);
   }
 
-  async login(username, password) {
+  async login(username, password, basePath, caseNo) {
     const timeString = await getDateTimeString();
     const sheetName = DATA_GLOBAL.SHEET_NAME_LOGIN;
     const pathCapAddUser = DATA_GLOBAL.PATH_CAP_ADD_USER;
@@ -32,10 +33,10 @@ class LoginPage {
     await this.usernameInput.fill(username);
     await this.passwordInput.click();
     await this.passwordInput.fill(password);
-    await this.page.screenshot({ path: `${pathCapAddUser}/${timeString}_login.png` });
+    await takeScreenshotCommon(this.page,basePath,caseNo,'login');
     await this.loginButton.click();
     await expect(this.mainTkkText).toBeVisible();
-    await this.page.screenshot({ path: `${pathCapAddUser}/${timeString}_login_success.png`, fullPage: true});
+    await takeScreenshotFull(this.page,basePath,caseNo,'login_success');
   }
 }
 
