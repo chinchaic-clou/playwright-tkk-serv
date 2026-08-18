@@ -38,4 +38,4 @@ async function getValidRowsLength(rows) {
   return nonValueRows.length;
 }
 
-module.exports = { getTestData };
+module.exports = { getTestData, getValidRowsLength };
