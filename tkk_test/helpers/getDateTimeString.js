@@ -10,7 +10,7 @@ function getDateTimeString() {
   const seconds = String(now.getSeconds()).padStart(2, '0');
 
   // ผลลัพธ์ที่ได้: 2026-08-13_15:30:00
-  return `${year}-${month}-${day}_${hours}:${minutes}:${seconds}`;
+  return `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
 }
 
 // ส่งออกฟังก์ชันเพื่อให้ไฟล์อื่นเรียกใช้ได้
