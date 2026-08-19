@@ -1,5 +1,9 @@
 // page/addUser.page.js
 const { expect } = require('@playwright/test');
+const { takeScreenshotFull, takeScreenshotCommon } = require('../helpers/takeScreenshot');
+const { updateUserRow } = require('../helpers/writeGoogleSheet');
+const { DATA_GLOBAL } = require('../helpers/dataGlobal');
+
 
 class AddUserPage {
   /**
@@ -15,12 +19,17 @@ class AddUserPage {
     this.firstNameInput = page.getByRole('textbox', { name: 'ชื่อ *' });
     this.lastNameInput = page.getByRole('textbox', { name: 'นามสกุล *' });
     this.emailInput = page.getByRole('textbox', { name: 'อีเมล *' });
-    
+    this.buttonConfirm = page.getByRole('button', { name: 'ยืนยัน' })
+    // ใน constructor หรือที่รับค่า
+    this.getConfirmUserLocator = (username) => page.getByText(`ต้องการสร้างผู้ใช้ "${username}"`);
+    this.getUserFirstPassword = (username) => page.getByText(`รหัสผ่านชั่วคราวสำหรับผู้ใช้ "${username}"`);
     this.roleDropdown = page.locator('#role').getByRole('combobox');
     this.dealerDropdown = page.locator('#default_dealer_id').getByRole('combobox');
     this.branchDropdown = page.locator('#default_branch_id').getByRole('combobox');
-    
     this.saveButton = page.getByRole('button', { name: 'บันทึก' });
+    this.passwordCodeLocator = page.locator("//*[text()=' คัดลอก ']/../code");
+    this.buttonFinish = page.getByRole('button', { name: 'เสร็จสิ้น' })
+    
   }
 
   /**
@@ -57,24 +66,48 @@ class AddUserPage {
       await this.emailInput.fill(userData.email);
     }
 
-    // 3. เลือกตัวเลือกใน Dropdown เฉพาะที่มีการระบุมา
-    if (userData.role !== undefined) {
-      await this.roleDropdown.click();
-      await this.page.getByLabel('Options List').getByText(userData.role).click();
-    }
+// page/addUser.page.js
 
-    if (userData.dealer !== undefined) {
-      await this.dealerDropdown.click();
-      await this.page.locator('span').filter({ hasText: userData.dealer }).first().click();
-    }
+// 3. เลือกตัวเลือกใน Dropdown เฉพาะที่มีการระบุมา
+if (userData.role !== undefined) {
+  await this.roleDropdown.click();
+  // ใช้ getByRole('option') ภายใน 'Options List' แทนการค้นหา generic text
+  await this.page.getByRole('listbox', { name: 'Options List' })
+    .getByRole('option', { name: userData.role, exact: true })
+    .click();
+}
 
-    if (userData.branch !== undefined) {
-      await this.branchDropdown.click();
-      await this.page.locator('span').filter({ hasText: userData.branch }).first().click();
-    }
+if (userData.dealer !== undefined) {
+  await this.dealerDropdown.click();
+  await this.page.getByRole('listbox', { name: 'Options List' })
+    .getByRole('option', { name: userData.dealer, exact: true })
+    .click();
+}
+
+if (userData.branch !== undefined) {
+  await this.branchDropdown.click();
+  // แก้ไขบรรทัดที่ 82: ระบุ target ไปที่ option ใน listbox โดยตรง
+  await this.page.getByRole('listbox', { name: 'Options List' })
+    .getByRole('option', { name: userData.branch, exact: true })
+    .click();
+}
 
     // 4. บันทึกข้อมูล
+    await takeScreenshotCommon(this.page,userData.basePath,userData.caseNo,'add_user');
     await this.saveButton.click();
+    //ตรวจชื่อผู้ใช้หน้าเพิ่มผู้ใช้
+    await this.getConfirmUserLocator(userData.username).waitFor();
+    await expect(this.getConfirmUserLocator(userData.username)).toBeVisible();
+    await takeScreenshotCommon(this.page,userData.basePath,userData.caseNo,'confirm_add_user');
+    await this.buttonConfirm.click();
+    //ตรวจชื่อผู้ใช้หน้า first password
+    await this.getUserFirstPassword(userData.username).waitFor();
+    await expect(this.getUserFirstPassword(userData.username)).toBeVisible();
+    //get first password and put first password to google sheet
+    const customCode = await this.passwordCodeLocator.textContent();
+    await updateUserRow(DATA_GLOBAL.SHEET_ID,DATA_GLOBAL.SHEET_NAME_ADD_USER,userData.username,{SystemPassword: customCode?.trim()});
+    await takeScreenshotCommon(this.page,userData.basePath,userData.caseNo,'first_password');
+    await this.buttonFinish.click();
   }
 }
 

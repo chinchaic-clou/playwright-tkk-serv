@@ -1,6 +1,6 @@
 // helpers/takeScreenshot.js
 const { getDateTimeString } = require('./getDateTimeString'); // นำเข้าฟังก์ชันดึงวันเวลาที่สร้างไว้
-const timeScreenshot = 1500;
+const timeScreenshot = 500;
 
 /**
  * ฟังก์ชันสำหรับจับภาพหน้าจอแบบกำหนดชื่อโครงสร้างมาตรฐาน
