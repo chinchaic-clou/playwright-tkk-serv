@@ -36,6 +36,7 @@ class LoginPage {
     await takeScreenshotCommon(this.page,basePath,caseNo,'login');
     await this.loginButton.click();
     await expect(this.mainTkkText).toBeVisible();
+    await this.mainTkkText.click()
     await takeScreenshotFull(this.page,basePath,caseNo,'login_success');
   }
 }

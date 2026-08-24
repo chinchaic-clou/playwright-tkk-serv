@@ -105,7 +105,7 @@ if (userData.branch !== undefined) {
     await expect(this.getUserFirstPassword(userData.username)).toBeVisible();
     //get first password and put first password to google sheet
     const customCode = await this.passwordCodeLocator.textContent();
-    await updateUserRow(DATA_GLOBAL.SHEET_ID,DATA_GLOBAL.SHEET_NAME_ADD_USER,userData.username,{SystemPassword: customCode?.trim()});
+    await updateUserRow(DATA_GLOBAL.SHEET_ID,DATA_GLOBAL.SHEET_NAME_ADD_USER,DATA_GLOBAL.TARGET_USER,userData.username,{SystemPassword: customCode?.trim()});
     await takeScreenshotCommon(this.page,userData.basePath,userData.caseNo,'first_password');
     await this.buttonFinish.click();
   }

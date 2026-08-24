@@ -1,6 +1,6 @@
 // helpers/takeScreenshot.js
-const { getDateTimeString } = require('./getDateTimeString'); // นำเข้าฟังก์ชันดึงวันเวลาที่สร้างไว้
-const timeScreenshot = 500;
+const { getDateTimeString } = require("./getDateTimeString"); // นำเข้าฟังก์ชันดึงวันเวลาที่สร้างไว้
+const timeScreenshot = 1000;
 
 /**
  * ฟังก์ชันสำหรับจับภาพหน้าจอแบบกำหนดชื่อโครงสร้างมาตรฐาน
@@ -11,28 +11,47 @@ const timeScreenshot = 500;
  */
 async function takeScreenshotFull(page, basePath, caseNo, stepName) {
   const timestamp = getDateTimeString();
-  
+
   // ฟอร์แมตชื่อไฟล์: [CaseNo]_[StepName]_[YYYY-MM-DD_HH-mm-ss].png
-  const fileName = `${stepName}_${timestamp}.png`;
+  const fileName = `${timestamp}_${stepName}.png`;
   const fullPath = `${basePath}/${caseNo}/${fileName}`;
 
   // บันทึกภาพหน้าจอ
   await page.waitForTimeout(timeScreenshot);
   await page.screenshot({ path: fullPath, fullPage: true });
-  console.log(`📸 Bounded Screenshot: ${fullPath}`);
+  // console.log(`📸 Bounded Screenshot: ${fullPath}`);
 }
 
 async function takeScreenshotCommon(page, basePath, caseNo, stepName) {
   const timestamp = getDateTimeString();
-  
+
   // ฟอร์แมตชื่อไฟล์: [CaseNo]_[StepName]_[YYYY-MM-DD_HH-mm-ss].png
-  const fileName = `${stepName}_${timestamp}.png`;
+  const fileName = `${timestamp}_${stepName}.png`;
   const fullPath = `${basePath}/${caseNo}/${fileName}`;
 
   // บันทึกภาพหน้าจอ
   await page.waitForTimeout(timeScreenshot);
-  await page.screenshot({ path: fullPath});
-  console.log(`📸 Bounded Screenshot: ${fullPath}`);
+  await page.screenshot({ path: fullPath });
+  // console.log(`📸 Bounded Screenshot: ${fullPath}`);
 }
 
-module.exports = { takeScreenshotFull, takeScreenshotCommon};
+async function takeScreenshotFocus(page, basePath, caseNo, stepName, locator) {
+  const timestamp = getDateTimeString();
+
+  // ฟอร์แมตชื่อไฟล์: [CaseNo]_[StepName]_[YYYY-MM-DD_HH-mm-ss].png
+  const fileName = `${timestamp}_${stepName}.png`;
+  const fullPath = `${basePath}/${caseNo}/${fileName}`;
+
+  // บันทึกภาพหน้าจอ
+  await page.waitForTimeout(timeScreenshot);
+  await locator.first().screenshot({
+    path: fullPath,
+  });
+  // console.log(`📸 Bounded Screenshot: ${fullPath}`);
+}
+
+module.exports = {
+  takeScreenshotFull,
+  takeScreenshotCommon,
+  takeScreenshotFocus,
+};

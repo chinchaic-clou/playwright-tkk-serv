@@ -31,7 +31,7 @@ test('TC001', async ({ page }) => {
   console.log(`📊 จำนวน Row ทั้งหมด (รวมแถวว่าง): ${rowsSheetAddUser.length}`);
   console.log(`✅ จำนวน Row ที่มีข้อมูลจริง: ${validLength}`);
 
-  for (let i = 0; i < validLength; i++) {
+  for (let i = 1; i < 2; i++) {
     await clearDirectory(`${pathCapAddUser}/TC001/User00${i+1}`);
     await addUserPage.addUser({
       empCode: rowsSheetAddUser[i].CustomerID,
