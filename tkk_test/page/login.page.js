@@ -20,6 +20,7 @@ class LoginPage {
 
   // 📌 สร้างฟังก์ชันทำงาน (Actions) ของหน้านี้
   async goto(link) {
+    console.log(`Link: ${link}`)
     await this.page.goto(link);
   }
 

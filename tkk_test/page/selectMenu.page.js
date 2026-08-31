@@ -71,7 +71,20 @@ class NavigationPage {
     // รอดำเนินการคลิกปุ่มแรกที่พบ
     await rowLocator.first().click();
     await takeScreenshotFull(this.page, basePath, caseNo, "detail_all_invoice");
-    
+  }
+
+  async clickButtonViewDetail(dealerName, department, basePath, caseNo) {
+    const cleanDealer = dealerName?.trim() || "";
+    const cleanDept = department?.trim() || "";
+
+    // ใช้ normalize-space() เพื่อจัดการช่องว่างทั้งใน XPath และข้อมูลที่ส่งเข้ามา
+    const rowLocator = this.page.locator(
+      `//td[normalize-space()='${cleanDealer}']/..//td[normalize-space()='${cleanDept}']/..//a[normalize-space()='ดูรายละเอียด']`,
+    );
+
+    // รอดำเนินการคลิกปุ่มแรกที่พบ
+    await rowLocator.first().click();
+    await takeScreenshotFull(this.page, basePath, caseNo, "detail_view_detail");
   }
 }
 

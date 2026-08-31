@@ -1,41 +1,44 @@
 // helpers/googleSheet.js
 const { DATA_GLOBAL } = require('../helpers/dataGlobal');
-async function getTestData(sheet_name) {
+const { request } = require('@playwright/test');
+/**
+ * ฟังก์ชันดึงข้อมูลจาก Google Sheet ผ่าน OpenSheet API
+ * @param {string} sheet_name - ชื่อ Sheet ที่ต้องการดึงข้อมูล
+ * @param {number} retries - จำนวนครั้งสูงสุดที่จะลองดึงใหม่เมื่อล้มเหลว (Default: 3)
+ * @returns {Promise<Array>} ข้อมูล JSON จาก Sheet
+ */
+
+async function getTestData(sheet_name, retries = 3) {
   const sheetID = DATA_GLOBAL.SHEET_ID;
-  // ใช้ OpenSheet API แปลง Google Sheet เป็น JSON
   const url = `https://opensheet.elk.sh/${sheetID}/${sheet_name}`;
-  
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`ไม่สามารถดึงข้อมูลได้ Status: ${response.status}`);
+
+  // สร้าง request context สำหรับดึง API
+  const apiContext = await request.newContext();
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      // เพิ่ม timeout เป็น 20 วินาที
+      const response = await apiContext.get(url, { timeout: 20000 });
+
+      if (!response.ok()) {
+        throw new Error(`HTTP Status ${response.status()}`);
+      }
+
+      const data = await response.json();
+      await apiContext.dispose();
+      return data;
+    } catch (error) {
+      console.warn(`[พยายามครั้งที่ ${attempt}/${retries}] ดึงข้อมูล Google Sheet (${sheet_name}) ไม่สำเร็จ: ${error.message}`);
+
+      if (attempt === retries) {
+        await apiContext.dispose();
+        throw new Error(`ไม่สามารถดึงข้อมูลจาก Sheet: ${sheet_name} ได้ (${error.message})`);
+      }
+
+      // หน่วงเวลา 2 วินาทีก่อนลองใหม่
+      await new Promise(resolve => setTimeout(resolve, 2000));
     }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('เกิดข้อผิดพลาดในการโหลดข้อมูล:', error);
-    return [];
   }
 }
 
-/**
- * ฟังก์ชันดึงจำนวน Row ทั้งหมดที่มีข้อมูลจาก Google Sheet
- * @param {Array} rows - ข้อมูลที่อ่านได้จาก getTestData()
- * @returns {number} จำนวน Row ที่มีข้อมูล
- */
-async function getValidRowsLength(rows) {
-  if (!rows || !Array.isArray(rows)) return 0;
-
-  // กรองเฉพาะ Row ที่มีข้อมูลอย่างน้อย 1 ช่อง (ไม่เป็นค่าว่าง/spaces/null/undefined)
-  const nonValueRows = rows.filter(row => {
-    // ดึงค่าของแต่ละ Cell ใน Row มาเช็ก
-    const values = Object.values(row);
-    
-    // คืนค่า true ถ้ามีอย่างน้อย 1 ช่องที่มีข้อความจริง
-    return values.some(val => val !== null && val !== undefined && String(val).trim() !== '');
-  });
-
-  return nonValueRows.length;
-}
-
-module.exports = { getTestData, getValidRowsLength };
+module.exports = { getTestData };

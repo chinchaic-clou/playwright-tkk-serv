@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 const { LoginPage } = require('../page/login.page');
 const { NavigationPage } = require('../page/selectMenu.page');
-const { getTestData,getValidRowsLength} = require('../helpers/googleSheet');
+const { getTestData} = require('../helpers/googleSheet');
 const { DATA_GLOBAL } = require('../helpers/dataGlobal');
 const { updateUserRow } = require('../helpers/writeGoogleSheet');
 const { getDateTimeString } = require('../helpers/getDateTimeString');
@@ -26,10 +26,6 @@ test('TC001', async ({ page }) => {
   await loginPage.goto(rowsSheetLogin[0].Link);
   await loginPage.login(rowsSheetLogin[0].User,rowsSheetLogin[0].Password,pathCapAddUser,'TC001');
   await navigationPage.selectMenu(rowsSheetAddUser[0].Menu,rowsSheetAddUser[0].SubMenu,pathCapAddUser,'TC001');
-
-  const validLength = await getValidRowsLength(rowsSheetAddUser);
-  console.log(`📊 จำนวน Row ทั้งหมด (รวมแถวว่าง): ${rowsSheetAddUser.length}`);
-  console.log(`✅ จำนวน Row ที่มีข้อมูลจริง: ${validLength}`);
 
   for (let i = 1; i < 2; i++) {
     await clearDirectory(`${pathCapAddUser}/TC001/User00${i+1}`);
